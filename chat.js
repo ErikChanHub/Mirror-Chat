@@ -1,5 +1,7 @@
 (function () {
 
+    var gptKey = "";
+
     var updateDonation = function () {
         var donateDes = "## About Mirror-Chat \r\n" +
             "Mirror-Chat is an Intelligent conversation system whiich is based on ChatGPT3.0, it's able to think and reply most fo your questions such as the following scene:\r\n" +
@@ -70,7 +72,7 @@
             $loading.addClass('appeared');
             $loading.addClass('loading_cloned');
             $('.messages').append($loading);
-            
+
             let xhr = new XMLHttpRequest(); // 创建XHR对象
             xhr.open( // 打开链接
                 "post",
@@ -78,21 +80,21 @@
                 true
             );
             xhr.setRequestHeader("Content-Type", "application/json"); // 设置请求头
-            xhr.setRequestHeader("Authorization", "Bearer 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"); // 设置请求头
+            xhr.setRequestHeader("Authorization", "Bearer " + gptKey); // 设置请求头
             var form = {
                 "model": "gpt-3.5-turbo",
-                "messages": [{"role": "user", "content": data}],
+                "messages": [{ "role": "user", "content": data }],
                 "max_tokens": 1024,
-                "temperature": 0
+                "temperature": 1
             }
             xhr.send(JSON.stringify(form));
 
             xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4) { // 4表示此次请求结束
-                    var response  = xhr.responseText;
+                    var response = xhr.responseText;
                     console.log("后端返回的结果：" + response);
                     $('.loading_cloned').remove();
-                    if(!response){
+                    if (!response) {
                         sendMessage("这个问题我没听懂, 可以重新描述一下吗?", false);
                         return;
                     }
@@ -111,16 +113,34 @@
         });
         sendMessage('您可以问我任何问题，知无不言，言无不尽 (请确认您的网络连接是科学的)');
         updateDonation();
+
+        let xhr = new XMLHttpRequest();
+        xhr.open(
+            "get",
+            "https://raw.githubusercontent.com/ErikChanHub/GoChat/main/key.txt",
+            true
+        );
+        xhr.send();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4) {
+                var response = xhr.responseText;
+                if(!response){
+                    gptKey = "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";
+                    return;
+                }
+                gptKey =  "sk-"+response;
+            }
+        };
     });
 
     const divs = document.getElementsByClassName("el-overlay");
     var div = divs[0];
     const observer = new MutationObserver(function (mutations) {
         mutations.forEach(function (mutation) {
-           var isHidden =  $('.el-overlay').is(":hidden");
-           if(!isHidden){
-            updateDonation();
-           }
+            var isHidden = $('.el-overlay').is(":hidden");
+            if (!isHidden) {
+                updateDonation();
+            }
         });
     });
 
