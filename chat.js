@@ -1,6 +1,7 @@
 (function () {
 
     var gptKey = "";
+    var messages = [];
 
     var updateDonation = function () {
         var donateDes = "## About Mirror-Chat \r\n" +
@@ -71,7 +72,7 @@
             var $loading = $($('.message_loading').clone().html());
             $loading.addClass('appeared');
             $loading.addClass('loading_cloned');
-            $('.messages').append($loading);
+            $('.chat_window').append($loading);
 
             let xhr = new XMLHttpRequest(); // 创建XHR对象
             xhr.open( // 打开链接
@@ -81,12 +82,19 @@
             );
             xhr.setRequestHeader("Content-Type", "application/json"); // 设置请求头
             xhr.setRequestHeader("Authorization", "Bearer " + gptKey); // 设置请求头
+            var msg = { "role": "user", "content": data };
+            while (messages.length > 6) {
+                messages.shift();
+            }
+            messages.push(msg);
+
             var form = {
                 "model": "gpt-3.5-turbo",
-                "messages": [{ "role": "user", "content": data }],
+                "messages": messages,
                 "max_tokens": 1024,
                 "temperature": 1
             }
+
             xhr.send(JSON.stringify(form));
 
             xhr.onreadystatechange = function () {
@@ -98,8 +106,18 @@
                         sendMessage("这个问题我没听懂, 可以重新描述一下吗?", false);
                         return;
                     }
+
+                    messages.push({ "role": "assistant", "content": xhr.responseText });
                     let result = JSON.parse(xhr.responseText);// 后端返回的结果为字符串，这里将结果转换为json
-                    sendMessage(result.choices[0].message.content, false);
+
+                    let answer = result.choices[0].message.content;
+                    answer = answer.replace(/\\/g, "");
+
+                    while(isJson(answer)){
+                        answer = answer.choices[0].message.content;
+                        answer = answer.replace(/\\/g, "");
+                    }
+                    sendMessage(answer, false);
                 }
             };
         };
@@ -124,11 +142,11 @@
         xhr.onreadystatechange = function () {
             if (xhr.readyState == 4) {
                 var response = xhr.responseText;
-                if(!response){
+                if (!response) {
                     gptKey = "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";
                     return;
                 }
-                gptKey =  "sk-"+response;
+                gptKey = "sk-" + response;
             }
         };
     });
@@ -145,5 +163,15 @@
     });
 
     observer.observe(div, { attributes: true, attributeFilter: ["style"] });
+
+    var isJson = function (str) {
+        try {
+            JSON.parse(str);
+        } catch (e) {
+            return false;
+        }
+        return true;
+    }
+
 
 }).call(this);
