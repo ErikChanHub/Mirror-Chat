@@ -2,6 +2,7 @@
 
     var gptKey = "";
     var messages = [];
+    var Message;
 
     var updateDonation = function () {
         var donateDes = "## About Mirror-Chat \r\n" +
@@ -22,8 +23,6 @@
         $('.donate_des').html(marked.parse(donateDes));
     };
 
-    var Message;
-
     Message = function (arg) {
         this.text = arg.text, this.message_side = arg.message_side;
         this.draw = (function (_this) {
@@ -41,6 +40,11 @@
     };
 
     $(function () {
+        const Msg = {
+            WELCOME: '您可以问我任何问题，知无不言，言无不尽 (请确认您的网络连接是科学的)',
+            ERROR_NETWORK: '您的网络异常, 请检查是否正常链接...'
+        };
+
         var getMessageText, message_side, sendMessage, replayMsg;
         message_side = 'right';
         getMessageText = function () {
@@ -100,10 +104,8 @@
             xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4) { // 4表示此次请求结束
                     var response = xhr.responseText;
-                    console.log("后端返回的结果：" + response);
                     $('.loading_cloned').remove();
                     if (!response) {
-                        sendMessage("这个问题我没听懂, 可以重新描述一下吗?", false);
                         return;
                     }
 
@@ -114,11 +116,18 @@
                     answer = answer.replace(/\\/g, "");
 
                     while(isJson(answer)){
-                        answer = answer.choices[0].message.content;
+                        console.log("answer\n");
+                        console.log(answer);
+                        const obj = JSON.parse(answer);
+                        answer = obj.choices[0].message.content;
                         answer = answer.replace(/\\/g, "");
                     }
                     sendMessage(answer, false);
                 }
+            };
+
+            xhr.onerror = function(){
+                sendMessage(Msg.ERROR_NETWORK, false);
             };
         };
         $('.send_message').click(function (e) {
@@ -129,7 +138,7 @@
                 return sendMessage(getMessageText(), true);
             }
         });
-        sendMessage('您可以问我任何问题，知无不言，言无不尽 (请确认您的网络连接是科学的)');
+        sendMessage(Msg.WELCOME);
         updateDonation();
 
         let xhr = new XMLHttpRequest();
