@@ -1,0 +1,26 @@
+name: Mirror Chat CI
+on:
+  push:
+    branches:
+      - master
+      - ci_test
+jobs:
+  build:
+    name: New Branch
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: New Branch
+      id: new_branch
+      if: ${{ github.ref == 'refs/heads/master' }}
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v1.0.1
+        release_name: Release v1.0.1
+        body: |
+          Release v1.0.1 for Mirror Chat
+        draft: false
+        prerelease: false
