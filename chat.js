@@ -6,7 +6,7 @@
 
     var updateDonation = function () {
         var donateDes = "## About Mirror-Chat \r\n" +
-            "Mirror-Chat is an Intelligent conversation system whiich is based on ChatGPT3.0, it's able to think and reply most fo your questions such as the following scene:\r\n" +
+            "Mirror-Chat is an Intelligent conversation system whiich is based on ChatGPT3.5, it's able to think and reply most fo your questions such as the following scene:\r\n" +
             "- Writing an artile\r\n" +
             "- Fix bugs for your code\r\n" +
             "- Give you suggestions\r\n" +
@@ -170,7 +170,6 @@
             }
         });
     });
-
     observer.observe(div, { attributes: true, attributeFilter: ["style"] });
 
     var isJson = function (str) {
