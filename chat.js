@@ -10,7 +10,7 @@
             "- Writing an artile\r\n" +
             "- Fix bugs for your code\r\n" +
             "- Give you suggestions\r\n" +
-            "- etc...\r\n\r\n" +
+            "- etc...\r\n" +
             "Mirror-Chat is growing, if you encounter any issues or get any ideas, welcome to write it down in the github [Mirror-Chat](https://github.com/ErikChanHub/Mirror-Chat/issues)\r\n" +
             "## About ChatGPT. \r\n" +
             "Open AI trained a model called ChatGPT which interacts in a conversational way. <br>The dialogue format makes it possible for ChatGPT to answer followup questions, <br>admit its mistakes, challenge incorrect premises, and reject inappropriate requests. \r\n" +
@@ -41,8 +41,8 @@
 
     $(function () {
         const Msg = {
-            WELCOME: '您可以问我任何问题，知无不言，言无不尽 (请确认您的网络连接是科学的)',
-            ERROR_NETWORK: '您的网络异常, 请检查是否正常链接...'
+            WELCOME: '您可以问我任何问题`哈哈`，知无不言，言无不尽 (请确认您的网络连接是科学的)',
+            ERROR_NETWORK: '您的网络异常, 请检查是否正常连接...'
         };
 
         var getMessageText, message_side, sendMessage, replayMsg;
@@ -113,16 +113,27 @@
                     let result = JSON.parse(xhr.responseText);// 后端返回的结果为字符串，这里将结果转换为json
 
                     let answer = result.choices[0].message.content;
-                    answer = answer.replace(/\\/g, "");
-
+                    
                     while(isJson(answer)){
-                        console.log("answer\n");
-                        console.log(answer);
                         const obj = JSON.parse(answer);
                         answer = obj.choices[0].message.content;
-                        answer = answer.replace(/\\/g, "");
+                        answer = answer.replace(/nn/g, "\n");
+                        console.log("isJson...\n");
                     }
+
+                    console.log(answer);
                     sendMessage(answer, false);
+
+                    var container = document.getElementById('msg_container');
+                    // 手动调用语法高亮
+                    var blocks = container.getElementsByTagName("code");
+                    for(var block of blocks)
+                    {
+                        var node = block.parentNode;
+                        if(node.tagName === 'PRE'){
+                            hljs.highlightBlock(block);
+                        }
+                    }
                 }
             };
 
@@ -139,6 +150,8 @@
             }
         });
         sendMessage(Msg.WELCOME);
+
+        hljs.initHighlightingOnLoad();
         updateDonation();
 
         let xhr = new XMLHttpRequest();
@@ -180,6 +193,5 @@
         }
         return true;
     }
-
 
 }).call(this);
