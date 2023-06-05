@@ -42,7 +42,8 @@
     $(function () {
         const Msg = {
             WELCOME: '您可以问我任何问题`哈哈`，知无不言，言无不尽 (请确认您的网络连接是科学的)',
-            ERROR_NETWORK: '您的网络异常, 请检查是否正常连接...'
+            ERROR_NETWORK: '您的网络异常, 请检查是否正常连接...',
+            UNDER_MIANTAIN: '系统正在维护中'
         };
 
         var getMessageText, message_side, sendMessage, replayMsg;
@@ -86,60 +87,65 @@
             );
             xhr.setRequestHeader("Content-Type", "application/json"); // 设置请求头
             xhr.setRequestHeader("Authorization", "Bearer " + gptKey); // 设置请求头
+
+            // console.log("gptKey:", gptKey);
             var msg = { "role": "user", "content": data };
             while (messages.length > 6) {
                 messages.shift();
             }
             messages.push(msg);
 
-            var form = {
-                "model": "gpt-3.5-turbo",
-                "messages": messages,
-                "max_tokens": 1024,
-                "temperature": 1
-            }
+            $('.loading_cloned').remove();
+            sendMessage(Msg.UNDER_MIANTAIN, false);
 
-            xhr.send(JSON.stringify(form));
+            // var form = {
+            //     "model": "gpt-3.5-turbo",
+            //     "messages": messages,
+            //     "max_tokens": 1024,
+            //     "temperature": 1
+            // }
 
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4) { // 4表示此次请求结束
-                    var response = xhr.responseText;
-                    $('.loading_cloned').remove();
-                    if (!response) {
-                        return;
-                    }
+            // xhr.send(JSON.stringify(form));
 
-                    messages.push({ "role": "assistant", "content": xhr.responseText });
-                    let result = JSON.parse(xhr.responseText);// 后端返回的结果为字符串，这里将结果转换为json
+            // xhr.onreadystatechange = function () {
+            //     if (xhr.readyState == 4) { // 4表示此次请求结束
+            //         var response = xhr.responseText;
+            //         $('.loading_cloned').remove();
+            //         if (!response) {
+            //             return;
+            //         }
 
-                    let answer = result.choices[0].message.content;
+            //         messages.push({ "role": "assistant", "content": xhr.responseText });
+            //         let result = JSON.parse(xhr.responseText);// 后端返回的结果为字符串，这里将结果转换为json
+            //         console.log(result);
+            //         let answer = result.choices[0].message.content;
                     
-                    while(isJson(answer)){
-                        const obj = JSON.parse(answer);
-                        answer = obj.choices[0].message.content;
-                        answer = answer.replace(/nn/g, "\n");
-                        console.log("isJson...\n");
-                    }
+            //         while(isJson(answer)){
+            //             console.log(answer);
+            //             const obj = JSON.parse(answer);
+            //             answer = obj.choices[0].message.content;
+            //             answer = answer.replace(/nn/g, "\n");
+            //         }
 
-                    console.log(answer);
-                    sendMessage(answer, false);
+            //         console.log(answer);
+            //         sendMessage(answer, false);
 
-                    var container = document.getElementById('msg_container');
-                    // 手动调用语法高亮
-                    var blocks = container.getElementsByTagName("code");
-                    for(var block of blocks)
-                    {
-                        var node = block.parentNode;
-                        if(node.tagName === 'PRE'){
-                            hljs.highlightBlock(block);
-                        }
-                    }
-                }
-            };
+            //         var container = document.getElementById('msg_container');
+            //         // 手动调用语法高亮
+            //         var blocks = container.getElementsByTagName("code");
+            //         for(var block of blocks)
+            //         {
+            //             var node = block.parentNode;
+            //             if(node.tagName === 'PRE'){
+            //                 hljs.highlightBlock(block);
+            //             }
+            //         }
+            //     }
+            // };
 
-            xhr.onerror = function(){
-                sendMessage(Msg.ERROR_NETWORK, false);
-            };
+            // xhr.onerror = function(){
+            //     sendMessage(Msg.ERROR_NETWORK, false);
+            // };
         };
         $('.send_message').click(function (e) {
             return sendMessage(getMessageText(), true);
@@ -154,23 +160,24 @@
         hljs.initHighlightingOnLoad();
         updateDonation();
 
-        let xhr = new XMLHttpRequest();
-        xhr.open(
-            "get",
-            "https://raw.githubusercontent.com/ErikChanHub/GoChat/main/key.txt",
-            true
-        );
-        xhr.send();
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4) {
-                var response = xhr.responseText;
-                if (!response) {
-                    gptKey = "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";
-                    return;
-                }
-                gptKey = "sk-" + response;
-            }
-        };
+        gptKey = "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";
+        // let xhr = new XMLHttpRequest();
+        // xhr.open(
+        //     "get",
+        //     "https://raw.githubusercontent.com/ErikChanHub/GoChat/main/key.txt",
+        //     true
+        // );
+        // xhr.send();
+        // xhr.onreadystatechange = function () {
+        //     if (xhr.readyState == 4) {
+        //         var response = xhr.responseText;
+        //         if (!response) {
+        //             gptKey = "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";
+        //             return;
+        //         }
+        //         gptKey = "sk-" + response;
+        //     }
+        // };
     });
 
     const divs = document.getElementsByClassName("el-overlay");
